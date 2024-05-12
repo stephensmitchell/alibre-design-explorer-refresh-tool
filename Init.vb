@@ -1,17 +1,15 @@
 ﻿Imports AlibreX
 Imports System.Threading
 Module Init
-    Public Session As IADSession
-    Public DesignSession As AlibreX.IADDesignSession
-    Public FeatureStep As AlibreX.IADPartSession
-    Public Hook As IAutomationHook
-    Public Root As IADRoot
     Sub Main()
+        Dim Hook As IAutomationHook
+        Dim Root As IADRoot
         Try
+            Dim Session As IADSession
+            Dim FeatureStep As AlibreX.IADPartSession
             Hook = GetObject(, "AlibreX.AutomationHook")
             Root = Hook.Root
             Session = Root.TopmostSession
-            DesignSession = Session
             FeatureStep = Session
             FeatureStep.Features.Item(0).IsActive = True
             Thread.Sleep(TimeSpan.FromSeconds(0.5))
@@ -22,11 +20,10 @@ Module Init
             FeatureStep.RegenerateAll()
             FeatureStep.Save()
         Catch ex As ArgumentException
-            MsgBox(ex.Message)
+            Console.WriteLine(ex.Message)
         Finally
             Hook = Nothing
             Root = Nothing
         End Try
     End Sub
-
 End Module

@@ -3,42 +3,56 @@ Imports AlibreX
 Imports System.Threading
 Module Init
     Sub Main()
-        Dim Hook As IAutomationHook = Nothing
-        Dim Root As IADRoot = Nothing
-        Dim Session As IADSession = Nothing
-        Dim FeatureStep As IADPartSession = Nothing
+        Dim hook As IAutomationHook = Nothing
+        Dim root As IADRoot = Nothing
+        Dim session As IADSession = Nothing
+        Dim partSession As IADPartSession = Nothing
         Try
-            Hook = GetObject(, "AlibreX.AutomationHook")
-            Root = Hook.Root
-            Session = Root.TopmostSession
-            FeatureStep = CType(Session, IADPartSession)
-            FeatureStep.Features.Item(0).IsActive = True
-            Thread.Sleep(TimeSpan.FromSeconds(0.5))
-            For Each item As IADPartFeature In FeatureStep.Features
-                item.IsActive = True
-                Thread.Sleep(TimeSpan.FromSeconds(0.5))
-            Next
-            FeatureStep.RegenerateAll()
-            FeatureStep.Save()
-        Catch ex As ArgumentException
-            Console.WriteLine(ex.Message)
+            Try
+                hook = CType(GetObject(, "AlibreX.AutomationHook"), IAutomationHook)
+            Catch comEx As COMException
+                Throw New InvalidOperationException("Alibre Design is not running. Please start Alibre Design and retry.", comEx)
+            End Try
+            If hook Is Nothing Then
+                Throw New InvalidOperationException("Failed to obtain AutomationHook instance.")
+            End If
+            root = hook.Root
+            If root Is Nothing Then
+                Throw New InvalidOperationException("Root object is not available. Alibre Design may not be properly initialized.")
+            End If
+            session = root.TopmostSession
+            If session Is Nothing OrElse Not TypeOf session Is IADPartSession Then
+                Throw New InvalidOperationException("The current session is not a valid part session.")
+            End If
+            partSession = CType(session, IADPartSession)
+            If partSession.Features.Count = 0 Then
+                Console.WriteLine("No features found in the current session.")
+            Else
+                For Each feature As IADPartFeature In partSession.Features
+                    feature.IsActive = True
+                    Thread.Sleep(TimeSpan.FromMilliseconds(500))
+                Next
+                partSession.RegenerateAll()
+                partSession.Save()
+                Console.WriteLine("Features activated, session regenerated, and changes saved successfully.")
+            End If
+        Catch invalidOpEx As InvalidOperationException
+            Console.WriteLine($"Operation failed: {invalidOpEx.Message}")
+        Catch comEx As COMException
+            Console.WriteLine($"COM error encountered: {comEx.Message}")
+        Catch argEx As ArgumentException
+            Console.WriteLine($"Argument error: {argEx.Message}")
+        Catch ex As Exception
+            Console.WriteLine($"Unexpected error: {ex.Message}")
         Finally
-            If Not IsNothing(FeatureStep) Then
-                Marshal.ReleaseComObject(FeatureStep)
-                FeatureStep = Nothing
-            End If
-            If Not IsNothing(Session) Then
-                Marshal.ReleaseComObject(Session)
-                Session = Nothing
-            End If
-            If Not IsNothing(Root) Then
-                Marshal.ReleaseComObject(Root)
-                Root = Nothing
-            End If
-            If Not IsNothing(Hook) Then
-                Marshal.ReleaseComObject(Hook)
-                Hook = Nothing
-            End If
+            If partSession IsNot Nothing Then Marshal.ReleaseComObject(partSession)
+            If session IsNot Nothing Then Marshal.ReleaseComObject(session)
+            If root IsNot Nothing Then Marshal.ReleaseComObject(root)
+            If hook IsNot Nothing Then Marshal.ReleaseComObject(hook)
+            partSession = Nothing
+            session = Nothing
+            root = Nothing
+            hook = Nothing
         End Try
     End Sub
 End Module

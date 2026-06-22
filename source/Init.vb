@@ -7,6 +7,7 @@ Module Init
         Dim root As IADRoot = Nothing
         Dim session As IADSession = Nothing
         Dim partSession As IADPartSession = Nothing
+        Dim features As IADPartFeatures = Nothing
         Try
             Try
                 hook = CType(GetObject(, "AlibreX.AutomationHook"), IAutomationHook)
@@ -25,12 +26,14 @@ Module Init
                 Throw New InvalidOperationException("The current session is not a valid part session.")
             End If
             partSession = CType(session, IADPartSession)
-            If partSession.Features.Count = 0 Then
+            features = partSession.Features
+            If features.Count = 0 Then
                 Console.WriteLine("No features found in the current session.")
             Else
-                For Each feature As IADPartFeature In partSession.Features
+                For Each feature As IADPartFeature In features
                     feature.IsActive = True
                     Thread.Sleep(TimeSpan.FromMilliseconds(500))
+                    Marshal.ReleaseComObject(feature)
                 Next
                 partSession.RegenerateAll()
                 partSession.Save()
@@ -45,10 +48,12 @@ Module Init
         Catch ex As Exception
             Console.WriteLine($"Unexpected error: {ex.Message}")
         Finally
+            If features IsNot Nothing Then Marshal.ReleaseComObject(features)
             If partSession IsNot Nothing Then Marshal.ReleaseComObject(partSession)
             If session IsNot Nothing Then Marshal.ReleaseComObject(session)
             If root IsNot Nothing Then Marshal.ReleaseComObject(root)
             If hook IsNot Nothing Then Marshal.ReleaseComObject(hook)
+            features = Nothing
             partSession = Nothing
             session = Nothing
             root = Nothing

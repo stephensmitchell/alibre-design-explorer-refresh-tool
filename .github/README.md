@@ -1,38 +1,31 @@
 # Alibre Design Explorer Refresh Tool
 
-> Note: This repository is undergoing significant changes and is currently a work in progress.
+A command-line utility that connects to a running Alibre Design session and forces the active part's Design Explorer to refresh by reactivating every feature, regenerating the model, and saving the file.
 
-| Item | Value |
-| --- | --- |
-| Type | Desktop utility / tool |
-| Primary stack | VB.NET, Alibre automation |
-
-## Overview
-This utility connects to a running Alibre Design session, walks the current part feature list, regenerates the model, and saves the file.
-
-## Repository Layout
-- source/: project source, solution or project files, and runtime assets.
-- submodules/: external git submodules used by the repository when required.
-- documentation/: supplementary notes, changelogs, and non-GitHub documentation.
-- .github/: repository README, templates, and GitHub-specific community files.
-- `source/ADDesignExplorerRefresh.sln`: key source or build entry point.
-- `source/ADDesignExplorerRefresh.vbproj`: key source or build entry point.
-- `LICENSE`: repository license file kept at the root.
+## Features
+- Attaches to an already-running Alibre Design instance through its `AlibreX` COM automation interface.
+- Operates on the topmost (active) part session and validates that it is a part before acting.
+- Iterates the part's feature list and sets each feature to active.
+- Regenerates the full model and saves the part once all features are processed.
+- Reports clear status and error messages (for example, when Alibre Design is not running or the active session is not a part).
 
 ## Requirements
-- Windows development environment.
-- A .NET build environment compatible with the projects under source/.
-- Alibre Design installed if you need to run, debug, or validate the Alibre integration.
+- Alibre Design installed and running, with the bundled `AlibreX.dll` automation library (developed against Alibre Design 29.0.0.29060).
+- .NET Framework 4.8.1 runtime (Windows, x64).
 
-## Build and Use
-1. Open `source/ADDesignExplorerRefresh.sln` in your preferred IDE.
-2. Restore dependencies and build from the source/ layout.
-3. Use the notes in documentation/ and .github/README.md as the primary repository guide.
+## Installation
+1. Open `source/ADDesignExplorerRefresh.sln` in Visual Studio (or build `source/ADDesignExplorerRefresh.vbproj` with MSBuild).
+2. Build the `Release` configuration. The output is produced at `source/bin/Release/net481/ADDesignExplorerRefresh.exe`.
+3. Ensure the `AlibreX` reference resolves to your local Alibre Design installation if your version differs from the one in the project file.
 
-## Current Limitations
-- The repository has been normalized for layout consistency; any path-sensitive tooling should be revalidated against the new folder structure.
-- Existing runtime behavior and project-specific limitations remain unchanged.
+This is a standalone console executable; there is no Alibre add-on (`.adc`) manifest to register.
+
+## Usage
+1. Start Alibre Design and open the part you want to refresh.
+2. Make that part the active (topmost) session.
+3. Run `ADDesignExplorerRefresh.exe`.
+
+The tool reactivates each feature, regenerates the model, and saves the part automatically. On success it prints a confirmation; if Alibre Design is not running or the active session is not a part, it reports the reason and exits.
 
 ## License
 See [LICENSE](../LICENSE).
-

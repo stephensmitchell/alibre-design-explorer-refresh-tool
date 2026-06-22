@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net481</TargetFramework>
     <OutputType>Exe</OutputType>
@@ -45,7 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="AlibreX">
-      <HintPath>C:\Program Files\Alibre Design 28.0.4.28141\Program\AlibreX.dll</HintPath>
+      <HintPath>C:\Program Files\Alibre Design 29.0.0.29060\Program\AlibreX.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

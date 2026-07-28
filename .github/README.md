@@ -17,7 +17,6 @@
   - Where things live
     - `source/` holds the VB.NET console project.
     - `documentation/` holds reference notes.
-    - `reviews/` holds dated code reviews.
   - Good to know
     - The tool saves the part as its final step, so close anything you do not want written to disk.
   - Use it under the MIT License.
